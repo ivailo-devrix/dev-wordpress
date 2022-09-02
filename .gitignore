@@ -81,3 +81,5 @@ nbproject/
 
 # Anything else project related to be added here
 wp-config.php
+.WORK/
+vendor/
