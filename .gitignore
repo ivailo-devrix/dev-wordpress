@@ -84,3 +84,4 @@ wp-config.php
 .WORK/
 vendor/
 New folder/
+.editorconfig
