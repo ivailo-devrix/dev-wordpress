@@ -102,11 +102,7 @@ add_action( 'save_post', 'save_address_meta_box_data' );
 
 // Birth Date - meta box
 function birth_date_custom_box() {
-	add_meta_box(
-		'birth_date_box_id',
-		'Birth Date',
-		'birth_date_custom_box_html',
-		'student' );
+	add_meta_box( 'birth_date_box_id', 'Birth Date', 'birth_date_custom_box_html', 'student' );
 }
 
 function birth_date_custom_box_html( $post ) {
@@ -268,6 +264,8 @@ function my_plugin_assets() {
 }
 
 add_action( 'wp_ajax_my_tag_count', 'my_ajax_handler' );
+
+
 function my_ajax_handler() {
 	check_ajax_referer( 'students_settings', 'nonce' );
 
@@ -428,4 +426,45 @@ function wporg_field_pill_cb( $args ) {
 }
 
 
+//Display custom column Active
+function display_posts_active_check( $column, $post_id ) {
 
+	$value = get_post_meta( $post_id, '_active_inactive', true );
+
+	if ( $column === 'status' ) {
+		echo '<input class="active-js-input" type="checkbox" data-post-id="' . $post_id . '"', ( checked( $value, 'active', false ) ), '/>';
+	}
+}
+
+add_action( 'manage_posts_custom_column', 'display_posts_active_check', 10, 2 );
+
+
+// Add custom column to post list
+function add_active_column( $columns ) {
+	return array_merge( $columns, array( 'status' => __( 'Active', 'devrix_student' ) ) );
+}
+
+add_filter( 'manage_student_posts_columns', 'add_active_column' );
+
+
+//AJAX save status
+add_action( 'wp_ajax_save_ajax_status', 'save_active_meta_box_status_ajax' );
+
+function save_active_meta_box_status_ajax() {
+
+	check_ajax_referer( 'students_settings', 'nonce' );
+
+	$post_id = sanitize_text_field( $_POST['post-id'] );
+	$active  = sanitize_text_field( $_POST['active'] );
+
+	$status = '';
+
+	if ( $active === 'true' ) {
+		$status = 'active';
+	}
+
+	// Update the meta field in the database.
+	update_post_meta( $post_id, '_active_inactive', $status );
+
+	wp_send_json_success();
+}
