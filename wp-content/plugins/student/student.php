@@ -206,6 +206,7 @@ function wpdocs_register_my_custom_submenu_page() {
 	//top level students menu
 	add_menu_page( 'Students Settings', 'Students Settings', 'manage_options', 'students-admin-settings', 'students_menu_callback', 'dashicons-admin-customizer' );
 
+
 	//ajax sub menu
 	add_submenu_page( 'students-admin-settings', 'AJAX Settings', 'AJAX Settings', 'manage_options', 'ajax-settings', 'ajax_settings_page_callback',
 
@@ -432,7 +433,7 @@ function display_posts_active_check( $column, $post_id ) {
 	$value = get_post_meta( $post_id, '_active_inactive', true );
 
 	if ( $column === 'status' ) {
-		echo '<input class="active-js-input" type="checkbox" data-post-id="' . $post_id . '"', ( checked( $value, 'active', false ) ), '/>';
+		echo '<input class="active-js-input" type="checkbox" data-post-id="' . tag_escape($post_id) . '"', ( checked( $value, 'active', false ) ), '/>';
 	}
 }
 
@@ -468,3 +469,20 @@ function save_active_meta_box_status_ajax() {
 
 	wp_send_json_success();
 }
+
+
+//add menu oxfords
+function oxfords_top_level_menu() {
+
+	//top level students menu
+	add_menu_page(
+		'Dictionary',
+		'Dictionary',
+		'manage_options',
+		'oxfords-dictionary',
+		'oxfords_html',
+		'dashicons-admin-customizer',
+	6);
+}
+
+add_action( 'admin_menu', 'oxfords_top_level_menu' );
