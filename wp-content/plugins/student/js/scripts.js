@@ -41,5 +41,17 @@ jQuery(document).ready(function ($) { //wrapper
         });
     });
 
+
+    $('.my-submit').click(function(e){
+        e.preventDefault();
+        jQuery.ajax({
+            url: my_ajax_obj.ajax_url, method: 'POST', data: {
+                'action' : 'search_oxford_dictionary',
+                'query' : $('.oxford-search').val(),
+            },
+            success: function(result){ $('.result-html').html(result) }
+        });
+    });
+
 });
 

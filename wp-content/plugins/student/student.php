@@ -433,7 +433,7 @@ function display_posts_active_check( $column, $post_id ) {
 	$value = get_post_meta( $post_id, '_active_inactive', true );
 
 	if ( $column === 'status' ) {
-		echo '<input class="active-js-input" type="checkbox" data-post-id="' . tag_escape($post_id) . '"', ( checked( $value, 'active', false ) ), '/>';
+		echo '<input class="active-js-input" type="checkbox" data-post-id="' . tag_escape( $post_id ) . '"', ( checked( $value, 'active', false ) ), '/>';
 	}
 }
 
@@ -471,18 +471,56 @@ function save_active_meta_box_status_ajax() {
 }
 
 
-//add menu oxfords
+/**
+ * Add custom top-level menu Oxford`s
+ * */
 function oxfords_top_level_menu() {
 
 	//top level students menu
-	add_menu_page(
-		'Dictionary',
-		'Dictionary',
-		'manage_options',
-		'oxfords-dictionary',
-		'oxfords_html',
-		'dashicons-admin-customizer',
-	6);
+	add_menu_page( 'Dictionary', 'Dictionary', 'manage_options', 'oxfords-dictionary', 'dictionary_callback', 'dashicons-admin-customizer', 6 );
 }
 
 add_action( 'admin_menu', 'oxfords_top_level_menu' );
+
+
+// Callback for header Dict page
+function dictionary_callback() {
+	echo '<h1>Dictionary</h1>';
+	settings_fields( 'dictionary-oxford' );
+	do_settings_sections( 'dictionary-oxford' );
+}
+
+
+//Add custom settings to the dict page
+function register_dictionary_settings() {
+	add_settings_section( 'dictionary-oxford', 'Search in Oxford`s', null, 'dictionary-oxford' );
+
+	add_settings_field( 'dictionary_search', 'Search in Oxford`s: ', 'content_dictionary_html', 'dictionary-oxford', 'dictionary-oxford' );
+
+	register_setting( 'dictionary-oxford', 'dictionary_search' );
+}
+
+add_action( 'admin_init', 'register_dictionary_settings' );
+
+
+//Callback html
+function content_dictionary_html() {
+
+	echo '<label for="site-search">keyword:</label>
+<input type="search"  class="oxford-search" name="oxford-search" id="site-search" name="q">
+<button class="my-submit">Search</button>
+<div class="result-html"> </div>';
+}
+
+// get Oxford Dictionary content AJAX
+function search_oxford_dictionary() {
+	$response     = wp_remote_get( 'https://www.oxfordlearnersdictionaries.com/definition/english/' . esc_attr( $_POST['query'] ) );
+	$html_content = '';
+	if ( is_array( $response ) && ! is_wp_error( $response ) ) {
+		$html_content = $response['body']; // use the content
+	}
+
+	echo $html_content;
+}
+
+add_action( 'wp_ajax_search_oxford_dictionary', 'search_oxford_dictionary' );
