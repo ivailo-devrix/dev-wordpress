@@ -505,11 +505,16 @@ add_action( 'admin_init', 'register_dictionary_settings' );
 
 //Callback html
 function content_dictionary_html() {
+	$result = ! empty ( $temp = get_transient( 'temp_content' ) ) ? $temp : '';
 
-	echo '<label for="site-search">keyword:</label>
+	echo '<select class="temp-time" name="temp-time">
+<option value="10">10-sec.</option>
+</select>
+<label for="site-search">keyword:</label>
 <input type="search"  class="oxford-search" name="oxford-search" id="site-search" name="q">
 <button class="my-submit">Search</button>
-<div class="result-html"> </div>';
+<div class="result-html">' . $result . '  </div>';
+
 }
 
 // get Oxford Dictionary content AJAX
@@ -519,6 +524,8 @@ function search_oxford_dictionary() {
 	if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 		$html_content = $response['body']; // use the content
 	}
+
+	set_transient('temp_content', $html_content, sanitize_text_field( $_POST[ 'sec' ] ) );
 
 	echo $html_content;
 }

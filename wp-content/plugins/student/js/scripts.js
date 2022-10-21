@@ -48,6 +48,7 @@ jQuery(document).ready(function ($) { //wrapper
             url: my_ajax_obj.ajax_url, method: 'POST', data: {
                 'action' : 'search_oxford_dictionary',
                 'query' : $('.oxford-search').val(),
+                'sec' : $('.temp-time').val(),
             },
             success: function(result){ $('.result-html').html(result) }
         });
