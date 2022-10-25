@@ -567,8 +567,7 @@ function list_of_students_shortcode( $parameters ) {
 		echo '<ul>';
 		while ( $the_query->have_posts() ) {
 			$the_query->the_post();
-			global $post;
-
+			
 			$meta = get_post_meta( get_the_ID(), "_class_grade", true );
 
 			echo get_the_post_thumbnail( get_the_ID(), array( 300, 300 ) );
