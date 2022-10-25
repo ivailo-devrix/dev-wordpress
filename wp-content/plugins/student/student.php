@@ -426,8 +426,10 @@ function wporg_field_pill_cb( $args ) {
 	<?php
 }
 
+/**
+ * Display custom column Active
+ * */
 
-//Display custom column Active
 function display_posts_active_check( $column, $post_id ) {
 
 	$value = get_post_meta( $post_id, '_active_inactive', true );
@@ -474,6 +476,7 @@ function save_active_meta_box_status_ajax() {
 /**
  * Add custom top-level menu Oxford`s
  * */
+
 function oxfords_top_level_menu() {
 
 	//top level students menu
@@ -491,7 +494,9 @@ function dictionary_callback() {
 }
 
 
-//Add custom settings to the dict page
+/**
+ * Add custom settings to the dict page
+ * */
 function register_dictionary_settings() {
 	add_settings_section( 'dictionary-oxford', 'Search in Oxford`s', null, 'dictionary-oxford' );
 
@@ -517,17 +522,61 @@ function content_dictionary_html() {
 
 }
 
-// get Oxford Dictionary content AJAX
+
+/**
+ * Get Oxford Dictionary content AJAX
+ * */
 function search_oxford_dictionary() {
-	$response     = wp_remote_get( 'https://www.oxfordlearnersdictionaries.com/definition/english/' . esc_attr( $_POST['query'] ) );
+	$response     = wp_remote_get( sanitize_url( 'https://www.oxfordlearnersdictionaries.com/definition/english/' . urlencode( $_POST['query'] ) ) );
 	$html_content = '';
 	if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 		$html_content = $response['body']; // use the content
+		set_transient( 'temp_content', $html_content, sanitize_text_field( $_POST['sec'] ) );
 	}
 
-	set_transient('temp_content', $html_content, sanitize_text_field( $_POST[ 'sec' ] ) );
-
 	echo $html_content;
+	die();
 }
 
 add_action( 'wp_ajax_search_oxford_dictionary', 'search_oxford_dictionary' );
+
+
+/**
+ * Creating shortcode for students
+ * */
+add_shortcode( 'list_of_students', 'list_of_students_shortcode' );
+
+function list_of_students_shortcode( $parameters ) {
+
+	$parameters = shortcode_atts( array(
+		'number' => '',
+	), $parameters, 'list_of_students_shortcode' );
+
+	$args = array(
+		'post_type'      => 'student',
+		'posts_per_page' => $parameters['number']
+	);
+
+// The Query
+	$the_query = new WP_Query( $args );
+
+// The Loop
+	if ( $the_query->have_posts() ) {
+		echo '<ul>';
+		while ( $the_query->have_posts() ) {
+			$the_query->the_post();
+			global $post;
+
+			$meta = get_post_meta( get_the_ID(), "_class_grade", true );
+
+			echo get_the_post_thumbnail( get_the_ID(), array( 300, 300 ) );
+			echo '<li>name: ' . get_the_title() . '</li>';
+			echo '<li>class/grade: ' . $meta . '</li>';
+		}
+		echo '</ul>';
+	} else {
+		// no posts found
+	}
+	/* Restore original Post Data */
+	wp_reset_postdata();
+}
