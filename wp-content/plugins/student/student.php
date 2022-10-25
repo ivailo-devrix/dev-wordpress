@@ -550,10 +550,12 @@ function list_of_students_shortcode( $parameters ) {
 
 	$parameters = shortcode_atts( array(
 		'number' => '',
+		'id'     => '',
 	), $parameters, 'list_of_students_shortcode' );
 
 	$args = array(
 		'post_type'      => 'student',
+		'p'              => $parameters['id'],
 		'posts_per_page' => $parameters['number']
 	);
 
